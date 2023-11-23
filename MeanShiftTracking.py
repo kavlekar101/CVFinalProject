@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 # the max value x or y can be is 25 when the other is 0, so we can reduce the search space to a 50x50 square
 # generalizing this, we can reduce the search space to a 2*radius x 2*radius square
@@ -6,8 +7,8 @@ import numpy as np
 # that are not in the circle that we are searching through
 def circularNeighbors(img, x, y, radius):
     feature_matrix = []
-    for row in range(max(-radius + y, 0), min(radius + y, img.shape[0])):
-        for col in range(max(-radius + x, 0), min(radius + x, img.shape[1])):
+    for row in range(max(math.floor(-radius + y), 0), min(math.ceil(radius + y), img.shape[0])):
+        for col in range(max(math.floor(-radius + x), 0), min(math.ceil(radius + x), img.shape[1])):
             if ((col - x)**2 + (row - y)**2) < (radius**2):
                 feature_matrix.append(np.array([col, row, img[row,col,0], img[row,col,1], img[row,col,2]]))
                 
@@ -85,9 +86,9 @@ def meanshiftWeights(X, q_model, p_test, bins):
     return weights
 
 def meanshiftTracking(img1, img2, starting_x, starting_y):
-    radius = 25
-    starting_x = 149 # because we want the 150th column and python starts at 0 not 1 like a complete buffoon like MatLab
-    starting_y = 174 # because we want the 175th row and python starts at 0 not 1 like a complete buffoon like MatLab
+    radius = 15
+    # starting_x = 149 # because we want the 150th column and python starts at 0 not 1 like a complete buffoon like MatLab
+    # starting_y = 174 # because we want the 175th row and python starts at 0 not 1 like a complete buffoon like MatLab
     bins = 16
     iterations = 25
 
