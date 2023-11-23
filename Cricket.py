@@ -3,8 +3,8 @@ import time
 import numpy as np
 from skimage import io
 import skimage
-import CovarianceTracking as ct
 import MeanShiftTracking as ms
+import OpticFlow as of
 
 start_time = time.time()
 duration = 5  # Duration in seconds
@@ -62,31 +62,40 @@ while True:
         # do the covariance tracking
         # I have to reduce the frame size first
         # x, y = 555, 315
-        x, y = 1029, 477
-        # x, y = 896, 274
+        # x, y = 1029, 477
+        x, y = 896, 274
         # y, x = ct.find_ball(im, frame)
         half_width = 20
         half_height = 20
         cv2.rectangle(frame, (x - half_width, y - half_height), (x + half_width, y + half_height), (0, 0, 0), 2)
         # cv2.imwrite('path_to_save_image.jpg', frame)
+        frames.append(frame)
+        i += 1
     else:
         print(x, y)
         # do the mean shift tracking
         new_x, new_y = ms.meanshiftTracking(frames[i-1], frame, x, y)
+        x_diff = int(new_x - x + 20)
+        y_diff = int(new_y - y + 20)
+        
+        frames.append(frame)
+        i += 1
+        
+        img1 = frames[i-2][int(y):int(y)+y_diff, int(x):int(x)+x_diff]
+        img2 = frames[i-1][int(y):int(y)+y_diff, int(x):int(x)+x_diff]
+        
         x, y = new_x, new_y
         
         half_width = 20
         half_height = 20
         cv2.rectangle(frame, (int(x) - half_width, int(y) - half_height), (int(x) + half_width, int(y) + half_height), (0, 0, 0), 2)
-        # I also have to define a window around the ball so that I can find the optic flow arbitrarily I am going to set it to 40x40
+        # I also have to define a window around the ball so that I can find the optic flow arbitrarily I am going to set it
+        print(of.calculate_forward_optic_flow(img1, img2))
     
     # Display the resulting frame
     cv2.imshow('frame', frame)
     if cv2.waitKey(1) == ord('q'):
         break
-    
-    frames.append(frame)
-    i += 1
 
 # When everything done, release the video capture object
 cap.release()

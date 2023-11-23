@@ -86,7 +86,7 @@ def meanshiftWeights(X, q_model, p_test, bins):
     return weights
 
 def meanshiftTracking(img1, img2, starting_x, starting_y):
-    radius = 15
+    radius = 10
     # starting_x = 149 # because we want the 150th column and python starts at 0 not 1 like a complete buffoon like MatLab
     # starting_y = 174 # because we want the 175th row and python starts at 0 not 1 like a complete buffoon like MatLab
     bins = 16
@@ -127,7 +127,7 @@ def meanshiftTracking(img1, img2, starting_x, starting_y):
         tracking_x = x_update
         tracking_y = y_update
 
-    print(f"These are the final x/column and y/row values: {tracking_x, tracking_y}")
-    print(f"The last two distances computed: {vector_distances[-2:]}")
+    # print(f"These are the final x/column and y/row values: {tracking_x, tracking_y}")
+    # print(f"The last two distances computed: {vector_distances[-2:]}")
     # print(vector_distances)
     return tracking_x, tracking_y
