@@ -31,3 +31,5 @@ def calculateGradientsAndFindEdges(Im):
     
     
     magIm = np.sqrt(gxIm**2 + gyIm**2)
+    
+    return magIm

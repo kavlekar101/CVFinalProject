@@ -3,11 +3,10 @@ import time
 import numpy as np
 from skimage import io
 import skimage
+import scipy
 import MeanShiftTracking as ms
 import OpticFlow as of
 import EdgeDetection as ed
-import numpy as np
-import numpy as np
 
 start_time = time.time()
 duration = 5  # Duration in seconds
@@ -96,8 +95,8 @@ while True:
         half_width = 20
         half_height = 20
         
-        ed.calculateGradientsAndFindEdges(frame)
-        cv2.imwrite('initial_frame.jpg', frame)
+        edge_frame = ed.calculateGradientsAndFindEdges(frame)
+        # cv2.imwrite('initial_frame.jpg', frame)
         
         cv2.rectangle(frame, (x - half_width, y - half_height), (x + half_width, y + half_height), (0, 0, 0), 2)
         # cv2.imwrite('path_to_save_image.jpg', frame)
@@ -105,7 +104,8 @@ while True:
         i += 1
     else:
         # do the mean shift tracking
-        new_x, new_y = ms.meanshiftTracking(frames[i-1], frame, x, y)
+        edge_frame = ed.calculateGradientsAndFindEdges(frame)
+        new_x, new_y = ms.meanshiftTracking(frames[i-1], edge_frame, x, y)
         x_diff = int(new_x - x) + 20
         y_diff = int(new_y - y) + 20
         
