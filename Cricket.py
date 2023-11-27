@@ -7,6 +7,8 @@ import scipy
 import MeanShiftTracking as ms
 import OpticFlow as of
 import EdgeDetection as ed
+import NCC as ncc
+import CovarianceTracking as ct
 
 start_time = time.time()
 duration = 5  # Duration in seconds
@@ -15,7 +17,7 @@ duration = 5  # Duration in seconds
 video_path = './redballbowled.mp4'
 
 # Path to your png file
-image_path = './ball.png'
+image_path = './redball.jpg'
 im = io.imread(image_path)
 
 # Create a VideoCapture object
@@ -88,15 +90,13 @@ while True:
         # cv2.waitKey(0)
         # break
         
-        # x, y = 555, 315
         # x, y = 1029, 477
         x, y = 896, 274
-        # y, x = ct.find_ball(im, frame)
-        half_width = 20
-        half_height = 20
+        half_width = 10
+        half_height = 10
         
         edge_frame = ed.calculateGradientsAndFindEdges(frame)
-        # cv2.imwrite('initial_frame.jpg', frame)
+        cv2.imwrite('redball.jpg', frame[y - half_height:y + half_height, x - half_width:x + half_width])
         
         cv2.rectangle(frame, (x - half_width, y - half_height), (x + half_width, y + half_height), (0, 0, 0), 2)
         # cv2.imwrite('path_to_save_image.jpg', frame)
@@ -105,15 +105,28 @@ while True:
     else:
         # do the mean shift tracking
         edge_frame = ed.calculateGradientsAndFindEdges(frame)
-        new_x, new_y = ms.meanshiftTracking(frames[i-1], edge_frame, x, y)
-        x_diff = int(new_x - x) + 20
-        y_diff = int(new_y - y) + 20
+        
+        # try this with better tracking so that we iterativly update the window
+        new_x, new_y = ms.meanshiftTracking(frames[i-1], frame, x, y)
+        print("done with meanshift")
+        new_y_1, new_x_1 = ncc.pyramid_calculations(im, frame)
+        print("done with ncc")
+        new_y_2, new_x_2 = ct.find_ball(im, frame)
+        print("done with covariance tracking")
+        
+        print(f"Distance Between Meanshift and NCC: {np.linalg.norm(np.array([new_x, new_y]) - np.array([new_x_1, new_y_1]))}")
+        # print(f"Distance Between Meanshift and Covariance Tracking: {np.linalg.norm(np.array([new_x, new_y]) - np.array([new_x_2, new_y_2]))}")
+        
+        x_diff = abs(int(new_x - x)) + 20
+        y_diff = abs(int(new_y - y)) + 20
         
         frames.append(frame)
         i += 1
         
-        img1 = frames[i-2][int(y):int(y)+y_diff, int(x):int(x)+x_diff]
-        img2 = frames[i-1][int(y):int(y)+y_diff, int(x):int(x)+x_diff]
+        y_frame = min(int(y), int(new_y))
+        x_frame = min(int(x), int(new_x))
+        img1 = frames[i-2][y_frame:y_frame+y_diff, x_frame:x_frame+x_diff]
+        img2 = frames[i-1][y_frame:y_frame+y_diff, x_frame:x_frame+x_diff]
         
         x, y = new_x, new_y
         
