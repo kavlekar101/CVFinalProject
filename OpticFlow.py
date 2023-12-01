@@ -20,7 +20,7 @@ def calculate_forward_optic_flow(Im, Im2):
     A = np.column_stack((Ix_flatten, Iy_flatten))
     b = It.flatten()
     
-    res, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
+    res, _, _, _ = np.linalg.lstsq(A, b, rcond=None)
     u, v = res[0], res[1]
     return u, v
     

@@ -78,8 +78,14 @@ def pyramid_calculations(template, search):
     pyramid = ip.create_pyramid(search, levels=4)[::-1]
     search_window = [0, 0, pyramid[0].shape[0], pyramid[0].shape[1]]
     
-    for _, level in enumerate(pyramid):
+    for i, level in enumerate(pyramid):
         _, y, x, _ = compute_best_point_pyramid(template, level[search_window[0]:search_window[0]+search_window[2], search_window[1]:search_window[1]+search_window[3]])
+        
+        search = level.copy()
+        search[search_window[0]:search_window[0]+search_window[2], search_window[1]:search_window[1]+search_window[3]] = [0, 0, 0]
+        cv2.imwrite('level' + str(i) + '.jpg', search)
+        
+        
         search_window[0] = y * 2
         search_window[1] = x * 2
         search_window[2] = template.shape[0] * 2
